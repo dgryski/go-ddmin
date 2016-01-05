@@ -1,0 +1,95 @@
+// Package ddmin implements the ddmin test minimization algorithm
+/*
+
+Simplifying and Isolating Failure-Inducing Input
+Andreas Zeller (2002)
+
+    https://www.st.cs.uni-saarland.de/papers/tse2002/tse2002.pdf
+
+*/
+package ddmin
+
+import (
+	"bytes"
+)
+
+// looks to minimize data so that f will fail (return false)
+func Minimize(data []byte, f func(d []byte) bool) []byte {
+
+	if f(nil) == false {
+		// that was easy..
+		return nil
+	}
+
+	if f(data) {
+		panic("ddmin: function must fail on data")
+	}
+
+	return ddmin(data, f, 2)
+
+}
+
+func ddmin(data []byte, f func(d []byte) bool, granularity int) []byte {
+
+	for len(data) >= 2 {
+
+		subsets := makeSubsets(data, granularity)
+
+		for _, subset := range subsets {
+			if f(subset) == false {
+				// recurse
+				return ddmin(subset, f, 2)
+			}
+		}
+
+		for i := range subsets {
+			complement := makeComplement(subsets, i)
+			if f(complement) == false {
+				granularity--
+				if granularity < 2 {
+					granularity = 2
+				}
+				return ddmin(complement, f, granularity)
+			}
+		}
+
+		if granularity == len(data) {
+			return data
+		}
+
+		granularity *= 2
+
+		if granularity > len(data) {
+			granularity = len(data)
+		}
+	}
+
+	return data
+}
+
+func makeSubsets(data []byte, granularity int) [][]byte {
+
+	var subsets [][]byte
+
+	size := len(data) / granularity
+	for i := 0; i < granularity; i++ {
+		subsets = append(subsets, data[:size])
+		data = data[size:]
+	}
+
+	return subsets
+}
+
+func makeComplement(subsets [][]byte, n int) []byte {
+
+	var b bytes.Buffer
+
+	for i, s := range subsets {
+		if i == n {
+			continue
+		}
+		b.Write(s)
+	}
+
+	return b.Bytes()
+}
