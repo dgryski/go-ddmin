@@ -31,6 +31,8 @@ func Minimize(data []byte, f func(d []byte) bool) []byte {
 
 func ddmin(data []byte, f func(d []byte) bool, granularity int) []byte {
 
+	var b bytes.Buffer
+
 	for len(data) >= 2 {
 
 		subsets := makeSubsets(data, granularity)
@@ -43,7 +45,7 @@ func ddmin(data []byte, f func(d []byte) bool, granularity int) []byte {
 		}
 
 		for i := range subsets {
-			complement := makeComplement(subsets, i)
+			complement := makeComplement(subsets, i, &b)
 			if f(complement) == false {
 				granularity--
 				if granularity < 2 {
@@ -80,9 +82,9 @@ func makeSubsets(data []byte, granularity int) [][]byte {
 	return subsets
 }
 
-func makeComplement(subsets [][]byte, n int) []byte {
+func makeComplement(subsets [][]byte, n int, b *bytes.Buffer) []byte {
 
-	var b bytes.Buffer
+	b.Reset()
 
 	for i, s := range subsets {
 		if i == n {
