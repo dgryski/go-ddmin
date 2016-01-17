@@ -10,7 +10,7 @@ func TestMinimize(t *testing.T) {
 	// the example from the paper
 	data := []byte{1, 2, 3, 4, 5, 6, 7, 8}
 
-	f := func(d []byte) bool {
+	f := func(d []byte) Result {
 		var seen1, seen7, seen8 bool
 		for _, v := range d {
 			if v == 1 {
@@ -24,7 +24,12 @@ func TestMinimize(t *testing.T) {
 			}
 
 		}
-		return !(seen1 && seen7 && seen8)
+
+		if seen1 && seen7 && seen8 {
+			return Fail
+		} else {
+			return Pass
+		}
 	}
 
 	want := []byte{1, 7, 8}

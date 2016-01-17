@@ -13,23 +13,30 @@ import (
 	"bytes"
 )
 
-// looks to minimize data so that f will fail (return false)
-func Minimize(data []byte, f func(d []byte) bool) []byte {
+type Result int
 
-	if f(nil) == false {
+const (
+	Pass Result = iota
+	Fail
+	Unresolved
+)
+
+// looks to minimize data so that f will fail (return false)
+func Minimize(data []byte, f func(d []byte) Result) []byte {
+
+	if f(nil) == Fail {
 		// that was easy..
 		return nil
 	}
 
-	if f(data) {
+	if f(data) == Pass {
 		panic("ddmin: function must fail on data")
 	}
 
 	return ddmin(data, f, 2)
-
 }
 
-func ddmin(data []byte, f func(d []byte) bool, granularity int) []byte {
+func ddmin(data []byte, f func(d []byte) Result, granularity int) []byte {
 
 	var b bytes.Buffer
 
@@ -38,7 +45,7 @@ func ddmin(data []byte, f func(d []byte) bool, granularity int) []byte {
 		subsets := makeSubsets(data, granularity)
 
 		for _, subset := range subsets {
-			if f(subset) == false {
+			if f(subset) == Fail {
 				// recurse
 				return ddmin(subset, f, 2)
 			}
@@ -46,7 +53,7 @@ func ddmin(data []byte, f func(d []byte) bool, granularity int) []byte {
 
 		for i := range subsets {
 			complement := makeComplement(subsets, i, &b)
-			if f(complement) == false {
+			if f(complement) == Fail {
 				granularity--
 				if granularity < 2 {
 					granularity = 2
