@@ -1,11 +1,10 @@
 package ddmin
 
 import (
-	"bytes"
-	"testing"
+	"fmt"
 )
 
-func TestMinimize(t *testing.T) {
+func ExampleMinimize() {
 
 	// the example from the paper
 	data := []byte{1, 2, 3, 4, 5, 6, 7, 8}
@@ -32,11 +31,9 @@ func TestMinimize(t *testing.T) {
 		}
 	}
 
-	want := []byte{1, 7, 8}
-
 	m := Minimize(data, f)
 
-	if !bytes.Equal(m, want) {
-		t.Errorf("Minimize()=% 02x, want % 02x\n", m, want)
-	}
+	fmt.Println(m)
+
+	// Output: [1 7 8]
 }
