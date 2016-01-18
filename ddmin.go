@@ -16,12 +16,15 @@ import (
 type Result int
 
 const (
+	// Pass indicates the test passed
 	Pass Result = iota
+	// Fail indicates the expected test failure was produced
 	Fail
+	// Unresolved indicates the test failed for a different reason
 	Unresolved
 )
 
-// looks to minimize data so that f will fail (return false)
+// looks to minimize data so that f will fail
 func Minimize(data []byte, f func(d []byte) Result) []byte {
 
 	if f(nil) == Fail {
