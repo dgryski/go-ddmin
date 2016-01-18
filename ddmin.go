@@ -37,14 +37,17 @@ func Minimize(data []byte, f func(d []byte) Result) []byte {
 
 func ddmin(data []byte, f func(d []byte) Result, granularity int) []byte {
 
+mainloop:
 	for len(data) >= 2 {
 
 		subsets := makeSubsets(data, granularity)
 
 		for _, subset := range subsets {
 			if f(subset) == Fail {
-				// recurse
-				return ddmin(subset, f, 2)
+				// fake tail recursion
+				data = subset
+				granularity = 2
+				continue mainloop
 			}
 		}
 
@@ -56,7 +59,9 @@ func ddmin(data []byte, f func(d []byte) Result, granularity int) []byte {
 				if granularity < 2 {
 					granularity = 2
 				}
-				return ddmin(complement, f, granularity)
+				// fake tail recursion
+				data = complement
+				continue mainloop
 			}
 		}
 
