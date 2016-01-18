@@ -9,10 +9,6 @@ Andreas Zeller (2002)
 */
 package ddmin
 
-import (
-	"bytes"
-)
-
 type Result int
 
 const (
@@ -41,8 +37,6 @@ func Minimize(data []byte, f func(d []byte) Result) []byte {
 
 func ddmin(data []byte, f func(d []byte) Result, granularity int) []byte {
 
-	var b bytes.Buffer
-
 	for len(data) >= 2 {
 
 		subsets := makeSubsets(data, granularity)
@@ -54,8 +48,9 @@ func ddmin(data []byte, f func(d []byte) Result, granularity int) []byte {
 			}
 		}
 
+		b := make([]byte, len(data))
 		for i := range subsets {
-			complement := makeComplement(subsets, i, &b)
+			complement := makeComplement(subsets, i, b[:0])
 			if f(complement) == Fail {
 				granularity--
 				if granularity < 2 {
@@ -92,16 +87,12 @@ func makeSubsets(data []byte, granularity int) [][]byte {
 	return subsets
 }
 
-func makeComplement(subsets [][]byte, n int, b *bytes.Buffer) []byte {
-
-	b.Reset()
-
+func makeComplement(subsets [][]byte, n int, b []byte) []byte {
 	for i, s := range subsets {
 		if i == n {
 			continue
 		}
-		b.Write(s)
+		b = append(b, s...)
 	}
-
-	return b.Bytes()
+	return b
 }
