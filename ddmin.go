@@ -84,10 +84,12 @@ func makeSubsets(data []byte, granularity int) [][]byte {
 	var subsets [][]byte
 
 	size := len(data) / granularity
-	for i := 0; i < granularity; i++ {
+	for i := 0; i < granularity-1; i++ {
 		subsets = append(subsets, data[:size])
 		data = data[size:]
 	}
+	// data might be slightly larger than size due to round-off error, but we don't care
+	subsets = append(subsets, data)
 
 	return subsets
 }
