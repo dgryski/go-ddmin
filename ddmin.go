@@ -9,6 +9,10 @@ Andreas Zeller (2002)
 */
 package ddmin
 
+import (
+	"math"
+)
+
 type Result int
 
 const (
@@ -83,12 +87,23 @@ func makeSubsets(data []byte, granularity int) [][]byte {
 
 	var subsets [][]byte
 
-	size := len(data) / granularity
+	// Use a variation of https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm to generate equal(ish) sized subsets
+	// TODO(dgryski): maybe switch to integer algorithm instead of floating point
+
+	fsize := float64(len(data)) / float64(granularity)
+	isize, frac := int(fsize), fsize-math.Trunc(fsize)
+
+	var ferr float64
 	for i := 0; i < granularity-1; i++ {
+		ferr += frac
+		size := isize
+		if ferr > 0.5 {
+			size++
+			ferr -= 1.0
+		}
 		subsets = append(subsets, data[:size])
 		data = data[size:]
 	}
-	// data might be slightly larger than size due to round-off error, but we don't care
 	subsets = append(subsets, data)
 
 	return subsets
