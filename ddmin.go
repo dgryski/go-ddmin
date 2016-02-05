@@ -9,10 +9,6 @@ Andreas Zeller (2002)
 */
 package ddmin
 
-import (
-	"math"
-)
-
 type Result int
 
 const (
@@ -83,30 +79,17 @@ mainloop:
 	return data
 }
 
-func makeSubsets(data []byte, granularity int) [][]byte {
+func makeSubsets(s []byte, n int) [][]byte {
 
-	var subsets [][]byte
+	// via https://www.reddit.com/r/golang/comments/44cl7f/a_better_subslicing_algorithm/czp9r6j
 
-	// Use a variation of https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm to generate equal(ish) sized subsets
-	// TODO(dgryski): maybe switch to integer algorithm instead of floating point
+	var ret [][]byte
 
-	fsize := float64(len(data)) / float64(granularity)
-	isize, frac := int(fsize), fsize-math.Trunc(fsize)
-
-	var ferr float64
-	for i := 0; i < granularity-1; i++ {
-		ferr += frac
-		size := isize
-		if ferr > 0.5 {
-			size++
-			ferr -= 1.0
-		}
-		subsets = append(subsets, data[:size])
-		data = data[size:]
+	for ; n > 0; n-- {
+		s, ret = s[len(s)/n:], append(ret, s[:len(s)/n])
 	}
-	subsets = append(subsets, data)
 
-	return subsets
+	return ret
 }
 
 func makeComplement(subsets [][]byte, n int, b []byte) []byte {
