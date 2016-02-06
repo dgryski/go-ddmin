@@ -86,7 +86,8 @@ func makeSubsets(s []byte, n int) [][]byte {
 	ret := make([][]byte, 0, n)
 
 	for ; n > 0; n-- {
-		s, ret = s[len(s)/n:], append(ret, s[:len(s)/n])
+		i := len(s) / n
+		s, ret = s[i:], append(ret, s[:i])
 	}
 
 	return ret
