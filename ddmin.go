@@ -83,7 +83,7 @@ func makeSubsets(s []byte, n int) [][]byte {
 
 	// via https://www.reddit.com/r/golang/comments/44cl7f/a_better_subslicing_algorithm/czp9r6j
 
-	var ret [][]byte
+	ret := make([][]byte, 0, n)
 
 	for ; n > 0; n-- {
 		s, ret = s[len(s)/n:], append(ret, s[:len(s)/n])
